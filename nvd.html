@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CVE Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>CVE Details</h1>
+        <p><strong>ID:</strong> <span id="cve-id"></span></p>
+        <p><strong>Description:</strong> <span id="cve-description"></span></p>
+        <p><strong>Score:</strong> <span id="cve-score"></span></p>
+        <p><strong>Published Date:</strong> <span id="cve-published"></span></p>
+        <p><strong>Last Modified:</strong> <span id="cve-modified"></span></p>
+        <a href="index.html">Back to List</a>
+    </div>
+
+    <script>
+        // Get CVE ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const cveId = urlParams.get('id');
+
+        // Fetch CVE details from API
+        fetch(`http://127.0.0.1:5000/cves/list?cve_id=${cveId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    document.getElementById("cve-id").innerText = data[0].id;
+                    document.getElementById("cve-description").innerText = data[0].description;
+                    document.getElementById("cve-score").innerText = data[0].score;
+                    document.getElementById("cve-published").innerText = data[0].published_date;
+                    document.getElementById("cve-modified").innerText = data[0].last_modified;
+                } else {
+                    document.querySelector(".container").innerHTML = "<h2>CVE not found</h2>";
+                }
+            });
+    </script>
+
+</body>
+</html>
