@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CVE List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        #search-box {
+            width: 300px;
+            padding: 10px;
+            margin: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CVE List</h1>
+
+    <!-- Search Box -->
+    <input type="text" id="search-box" placeholder="Search by CVE ID..." onkeyup="searchCVE()">
+
+    <table id="cve-table">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">CVE ID</th>
+                <th>Description</th>
+                <th onclick="sortTable(2)">Score</th>
+                <th onclick="sortTable(3)">Published Date</th>
+                <th onclick="sortTable(4)">Last Modified</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be inserted here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        // Fetch Data from API
+        function fetchCVEData() {
+            fetch("http://127.0.0.1:5000/cves/list")
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.querySelector("#cve-table tbody");
+                    tableBody.innerHTML = ""; // Clear table before adding new data
+
+                    data.forEach(cve => {
+                        let row = tableBody.insertRow();
+                        row.insertCell(0).innerText = cve.id;
+                        row.insertCell(1).innerText = cve.description;
+                        row.insertCell(2).innerText = cve.score;
+                        row.insertCell(3).innerText = cve.published_date;
+                        row.insertCell(4).innerText = cve.last_modified;
+
+                        // Make row clickable
+                        row.addEventListener("click", function() {
+                            window.location.href = `cve_details.html?id=${cve.id}`;
+                        });
+                    });
+                });
+        }
+
+        // Search Functionality
+        function searchCVE() {
+            let input = document.getElementById("search-box").value.toUpperCase();
+            let table = document.getElementById("cve-table");
+            let rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) {
+                let cveId = rows[i].getElementsByTagName("td")[0];
+                if (cveId) {
+                    let textValue = cveId.textContent || cveId.innerText;
+                    rows[i].style.display = textValue.toUpperCase().includes(input) ? "" : "none";
+                }
+            }
+        }
+
+        // Sorting Functionality
+        function sortTable(columnIndex) {
+            let table = document.getElementById("cve-table");
+            let rows = Array.from(table.rows).slice(1);
+            let sortedRows = rows.sort((a, b) => {
+                return a.cells[columnIndex].innerText.localeCompare(b.cells[columnIndex].innerText);
+            });
+
+            table.tBodies[0].append(...sortedRows);
+        }
+
+        // Fetch Data on Page Load
+        fetchCVEData();
+    </script>
+
+</body>
+</html>
